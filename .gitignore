@@ -1,0 +1,27 @@
+# Dépendances — ne pas commiter (trop lourd)
+node_modules/
+
+# Fichiers de build
+dist/
+
+# Variables d'environnement — JAMAIS sur GitHub (contient des clés secrètes)
+.env
+.env.local
+.env.production
+
+# Fichiers système
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+npm-debug.log*
+
+# Éditeurs
+.vscode/
+.idea/
+*.swp
+
+# Capacitor (généré automatiquement)
+android/
+ios/

@@ -1,0 +1,134 @@
+/* ============================================================
+   STYLES GLOBAUX — Big Man App
+   Ce fichier charge Tailwind et définit les styles de base
+   ============================================================ */
+
+/* Import des couches de base Tailwind */
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ---- Styles de base ---- */
+@layer base {
+  * {
+    /* Évite les débordements horizontaux sur mobile */
+    box-sizing: border-box;
+  }
+
+  html {
+    /* Défilement fluide pour toute la page */
+    scroll-behavior: smooth;
+  }
+
+  body {
+    /* Fond noir, texte blanc — thème sombre Big Man */
+    @apply bg-noir text-white font-sans;
+    /* Empêche le zoom involontaire sur iOS lors du focus sur un input */
+    -webkit-text-size-adjust: 100%;
+  }
+
+  /* Style par défaut des images : toujours responsive */
+  img {
+    @apply max-w-full h-auto;
+    /* Lazy loading par défaut (navigateur) */
+    loading: lazy;
+  }
+
+  /* Scrollbar personnalisée (navigateurs Webkit : Chrome, Safari) */
+  ::-webkit-scrollbar {
+    width: 4px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-noir-clair;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-rouge rounded-full;
+  }
+}
+
+/* ---- Composants réutilisables ---- */
+@layer components {
+  /* Bouton principal — JAUNE avec texte noir (couleur dominante du logo) */
+  .btn-primary {
+    @apply bg-jaune hover:bg-jaune-sombre text-noir font-bold py-3 px-6 rounded-xl
+           transition-all duration-200 active:scale-95 min-h-btn flex items-center
+           justify-center gap-2 select-none cursor-pointer;
+  }
+
+  /* Bouton secondaire — contour rouge */
+  .btn-secondary {
+    @apply border-2 border-rouge text-rouge hover:bg-rouge hover:text-white font-bold
+           py-3 px-6 rounded-xl transition-all duration-200 active:scale-95 min-h-btn
+           flex items-center justify-center gap-2 select-none cursor-pointer;
+  }
+
+  /* Bouton rouge — pour les actions de suppression ou alertes */
+  .btn-jaune {
+    @apply bg-rouge hover:bg-rouge-sombre text-white font-bold py-3 px-6 rounded-xl
+           transition-all duration-200 active:scale-95 min-h-btn flex items-center
+           justify-center gap-2 select-none cursor-pointer;
+  }
+
+  /* Carte produit — fond noir légèrement clair */
+  .carte-produit {
+    @apply bg-noir-clair rounded-2xl overflow-hidden shadow-lg hover:shadow-xl
+           transition-all duration-200 hover:-translate-y-1;
+  }
+
+  /* Input de formulaire */
+  .input-field {
+    @apply w-full bg-noir-clair border border-gray-700 rounded-xl px-4 py-3 text-white
+           placeholder-gray-500 focus:outline-none focus:border-rouge transition-colors
+           min-h-btn;
+  }
+
+  /* Badge de statut */
+  .badge {
+    @apply inline-flex items-center px-3 py-1 rounded-full text-xs font-semibold;
+  }
+
+  /* Animation de chargement skeleton */
+  .skeleton {
+    @apply bg-gray-700 rounded animate-pulse;
+    background: linear-gradient(90deg, #2D2D2D 25%, #3D3D3D 50%, #2D2D2D 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s infinite;
+  }
+}
+
+/* ---- Utilitaires personnalisés ---- */
+@layer utilities {
+  /* Empêche la sélection de texte sur les boutons (meilleure UX mobile) */
+  .no-select {
+    -webkit-user-select: none;
+    user-select: none;
+  }
+
+  /* Supprime le highlight bleu au tap sur mobile */
+  .no-tap-highlight {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  /* Gradient jaune Big Man — couleur dominante du logo */
+  .gradient-rouge {
+    background: linear-gradient(135deg, #FFCC00 0%, #E6B800 100%);
+  }
+
+  /* Gradient rouge — pour les accents */
+  .gradient-accent {
+    background: linear-gradient(135deg, #CC1626 0%, #A8101E 100%);
+  }
+
+  /* Gradient noir pour les overlays */
+  .gradient-noir {
+    background: linear-gradient(to top, rgba(10, 10, 10, 0.97) 0%, transparent 100%);
+  }
+
+  /* Texte avec gradient jaune → rouge */
+  .text-gradient {
+    background: linear-gradient(135deg, #FFCC00, #CC1626);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+  }
+}

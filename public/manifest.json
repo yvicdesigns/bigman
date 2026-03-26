@@ -1,0 +1,25 @@
+{
+  "name": "Big Man Fast Food",
+  "short_name": "Big Man",
+  "description": "Commandez vos burgers à Brazzaville",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#1A1A1A",
+  "theme_color": "#E63946",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ],
+  "categories": ["food", "shopping"],
+  "lang": "fr"
+}
