@@ -4,11 +4,12 @@
 // Permet d'ajouter au panier avec options (taille, suppléments)
 // ============================================================
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import Modal from '../ui/Modal'
 import Button from '../ui/Button'
 import { useCart } from '../../context/CartContext'
 import { formaterPrix } from '../../lib/whatsapp'
+import { getAvisProduit } from '../../lib/supabase'
 
 export default function ProductModal({ produit, ouvert, onFermer }) {
   const { ajouterAuPanier } = useCart()
@@ -17,6 +18,13 @@ export default function ProductModal({ produit, ouvert, onFermer }) {
   const [tailleSelectee, setTailleSelectee] = useState(null)
   const [supplementsSelectionnes, setSupplementsSelectionnes] = useState([])
   const [quantite, setQuantite] = useState(1)
+  const [avis, setAvis] = useState([])
+
+  useEffect(() => {
+    if (ouvert && produit) {
+      getAvisProduit(produit.nom).then(setAvis)
+    }
+  }, [ouvert, produit?.nom])
 
   // Si aucun produit n'est passé, ne rien afficher
   if (!produit) return null
@@ -174,6 +182,39 @@ export default function ProductModal({ produit, ouvert, onFermer }) {
           </button>
         </div>
       </div>
+
+      {/* Avis clients */}
+      {avis.length > 0 && (
+        <div className="mb-6">
+          <div className="flex items-center gap-2 mb-3">
+            <h3 className="font-bold text-white text-sm">Avis clients</h3>
+            <span className="text-gray-500 text-xs">({avis.length})</span>
+          </div>
+          <div className="space-y-3 max-h-52 overflow-y-auto pr-1">
+            {avis.map(a => (
+              <div key={a.id} className="bg-[#1a1a1a] rounded-xl p-3 space-y-1.5">
+                <div className="flex items-center justify-between">
+                  <span className="text-white text-xs font-semibold">{a.nom_client || 'Anonyme'}</span>
+                  <div className="flex">
+                    {[1,2,3,4,5].map(n => (
+                      <span key={n} className={`text-xs ${n <= a.note ? 'text-yellow-400' : 'text-gray-700'}`}>★</span>
+                    ))}
+                  </div>
+                </div>
+                {a.commentaire && (
+                  <p className="text-gray-400 text-xs leading-relaxed">"{a.commentaire}"</p>
+                )}
+                {a.reponse_admin && (
+                  <div className="bg-rouge/10 border border-rouge/20 rounded-lg px-2.5 py-1.5 mt-1">
+                    <p className="text-rouge text-[10px] font-bold mb-0.5">Réponse du restaurant</p>
+                    <p className="text-gray-300 text-xs">{a.reponse_admin}</p>
+                  </div>
+                )}
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Bouton d'ajout au panier */}
       <Button variante="primary" pleineLargeur taille="grand" onClick={handleAjouterAuPanier}>

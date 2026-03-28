@@ -166,7 +166,11 @@ export default function MenuCard({ produit, onOuvrir, index = 0 }) {
           {/* Note moyenne */}
           {produit.note_moyenne > 0 && (
             <div className="flex items-center gap-1 mb-2">
-              <span className="text-yellow-400 text-xs">{'⭐'.repeat(Math.round(produit.note_moyenne))}</span>
+              <div className="flex">
+                {[1,2,3,4,5].map(n => (
+                  <span key={n} className={`text-sm ${n <= Math.round(produit.note_moyenne) ? 'text-yellow-400' : 'text-gray-700'}`}>★</span>
+                ))}
+              </div>
               <span className="text-gray-500 text-xs">({produit.nb_avis})</span>
             </div>
           )}
