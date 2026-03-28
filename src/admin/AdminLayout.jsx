@@ -6,6 +6,7 @@
 import { useState, useEffect } from 'react'
 import { Link, useLocation, useNavigate, Outlet } from 'react-router-dom'
 import { useTheme } from '../context/ThemeContext'
+import { supabase } from '../lib/supabase'
 
 const LIENS_PRINCIPAUX = [
   { vers: '/admin/dashboard',  label: 'Tableau de bord', emoji: '📊' },
@@ -30,7 +31,31 @@ export default function AdminLayout() {
   const location  = useLocation()
   const navigate  = useNavigate()
   const { theme, basculerTheme } = useTheme()
-  const [menuOuvert, setMenuOuvert]   = useState(false)
+  const [menuOuvert, setMenuOuvert]     = useState(false)
+  const [commandesEnAttente, setCommandesEnAttente] = useState(0)
+
+  useEffect(() => {
+    // Charge le compte initial
+    supabase
+      .from('commandes')
+      .select('id', { count: 'exact', head: true })
+      .eq('statut', 'en_attente')
+      .then(({ count }) => setCommandesEnAttente(count || 0))
+
+    // Mise à jour en temps réel
+    const sub = supabase
+      .channel('badge-commandes')
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'commandes' }, () => {
+        supabase
+          .from('commandes')
+          .select('id', { count: 'exact', head: true })
+          .eq('statut', 'en_attente')
+          .then(({ count }) => setCommandesEnAttente(count || 0))
+      })
+      .subscribe()
+
+    return () => supabase.removeChannel(sub)
+  }, [])
 
   // Ouvrir le groupe Paramètres si on est sur une de ses pages
   const dansParametres = LIENS_PARAMETRES.some(l => location.pathname === l.vers)
@@ -50,7 +75,7 @@ export default function AdminLayout() {
     navigate('/admin')
   }
 
-  function LienNav({ lien, sous = false }) {
+  function LienNav({ lien, sous = false, badge = 0 }) {
     const estActif = location.pathname === lien.vers
     return (
       <Link
@@ -66,7 +91,12 @@ export default function AdminLayout() {
         `}
       >
         <span className={sous ? 'text-sm' : ''}>{lien.emoji}</span>
-        {lien.label}
+        <span className="flex-1">{lien.label}</span>
+        {badge > 0 && (
+          <span className="bg-rouge text-white text-xs font-black rounded-full min-w-[20px] h-5 flex items-center justify-center px-1 leading-none">
+            {badge > 99 ? '99+' : badge}
+          </span>
+        )}
       </Link>
     )
   }
@@ -96,7 +126,11 @@ export default function AdminLayout() {
 
           {/* Liens principaux */}
           {LIENS_PRINCIPAUX.map(lien => (
-            <LienNav key={lien.vers} lien={lien} />
+            <LienNav
+              key={lien.vers}
+              lien={lien}
+              badge={lien.vers === '/admin/commandes' ? commandesEnAttente : 0}
+            />
           ))}
 
           {/* Groupe Paramètres */}
