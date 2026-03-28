@@ -11,6 +11,7 @@ export default function Navbar() {
   const location = useLocation()
   const { nombreArticles } = useCart()
   const { isLight, basculerTheme } = useTheme()
+  const estAdmin = sessionStorage.getItem('bigman_admin') === 'true'
 
   // On n'affiche pas la navbar sur les pages admin
   if (location.pathname.startsWith('/admin')) return null
@@ -31,6 +32,17 @@ export default function Navbar() {
 
         {/* Actions à droite */}
         <div className="flex items-center gap-3">
+
+          {/* Retour admin — visible uniquement si session admin active */}
+          {estAdmin && (
+            <Link
+              to="/admin/dashboard"
+              className="flex items-center gap-1.5 px-3 h-9 rounded-xl bg-rouge/20 hover:bg-rouge/30 text-rouge text-xs font-bold transition-colors no-tap-highlight"
+              title="Retour au tableau de bord"
+            >
+              ⚙️ Admin
+            </Link>
+          )}
           {/* Bouton thème ☀️ / 🌙 */}
           <button
             onClick={basculerTheme}
