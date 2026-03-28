@@ -19,10 +19,12 @@ export default function ProductModal({ produit, ouvert, onFermer }) {
   const [supplementsSelectionnes, setSupplementsSelectionnes] = useState([])
   const [quantite, setQuantite] = useState(1)
   const [avis, setAvis] = useState([])
+  const [avisOuvert, setAvisOuvert] = useState(false)
 
   useEffect(() => {
     if (ouvert && produit) {
       getAvisProduit(produit.nom).then(setAvis)
+      setAvisOuvert(false)
     }
   }, [ouvert, produit?.nom])
 
@@ -183,36 +185,55 @@ export default function ProductModal({ produit, ouvert, onFermer }) {
         </div>
       </div>
 
-      {/* Avis clients */}
+      {/* Avis clients — accordéon */}
       {avis.length > 0 && (
-        <div className="mb-6">
-          <div className="flex items-center gap-2 mb-3">
-            <h3 className="font-bold text-white text-sm">Avis clients</h3>
-            <span className="text-gray-500 text-xs">({avis.length})</span>
-          </div>
-          <div className="space-y-3 max-h-52 overflow-y-auto pr-1">
-            {avis.map(a => (
-              <div key={a.id} className="bg-[#1a1a1a] rounded-xl p-3 space-y-1.5">
-                <div className="flex items-center justify-between">
-                  <span className="text-white text-xs font-semibold">{a.nom_client || 'Anonyme'}</span>
+        <div className="mb-6 border border-gray-800 rounded-xl overflow-hidden">
+          <button
+            onClick={() => setAvisOuvert(v => !v)}
+            className="w-full flex items-center justify-between px-4 py-3 hover:bg-noir-clair transition-colors"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-white text-sm font-bold">Avis clients</span>
+              <span className="bg-gray-800 text-gray-400 text-xs px-2 py-0.5 rounded-full">{avis.length}</span>
+              {produit.note_moyenne > 0 && (
+                <div className="flex items-center gap-1">
                   <div className="flex">
                     {[1,2,3,4,5].map(n => (
-                      <span key={n} className={`text-xs ${n <= a.note ? 'text-yellow-400' : 'text-gray-700'}`}>★</span>
+                      <span key={n} className={`text-xs ${n <= Math.round(produit.note_moyenne) ? 'text-yellow-400' : 'text-gray-700'}`}>★</span>
                     ))}
                   </div>
+                  <span className="text-gray-500 text-xs">{produit.note_moyenne}</span>
                 </div>
-                {a.commentaire && (
-                  <p className="text-gray-400 text-xs leading-relaxed">"{a.commentaire}"</p>
-                )}
-                {a.reponse_admin && (
-                  <div className="bg-rouge/10 border border-rouge/20 rounded-lg px-2.5 py-1.5 mt-1">
-                    <p className="text-rouge text-[10px] font-bold mb-0.5">Réponse du restaurant</p>
-                    <p className="text-gray-300 text-xs">{a.reponse_admin}</p>
+              )}
+            </div>
+            <span className={`text-gray-500 text-xs transition-transform duration-200 ${avisOuvert ? 'rotate-180' : ''}`}>▼</span>
+          </button>
+
+          {avisOuvert && (
+            <div className="border-t border-gray-800 divide-y divide-gray-800">
+              {avis.map(a => (
+                <div key={a.id} className="px-4 py-3 space-y-1.5">
+                  <div className="flex items-center justify-between">
+                    <span className="text-white text-xs font-semibold">{a.nom_client || 'Anonyme'}</span>
+                    <div className="flex">
+                      {[1,2,3,4,5].map(n => (
+                        <span key={n} className={`text-xs ${n <= a.note ? 'text-yellow-400' : 'text-gray-700'}`}>★</span>
+                      ))}
+                    </div>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
+                  {a.commentaire && (
+                    <p className="text-gray-400 text-xs leading-relaxed">"{a.commentaire}"</p>
+                  )}
+                  {a.reponse_admin && (
+                    <div className="bg-rouge/10 border border-rouge/20 rounded-lg px-2.5 py-1.5">
+                      <p className="text-rouge text-[10px] font-bold mb-0.5">Réponse du restaurant</p>
+                      <p className="text-gray-300 text-xs">{a.reponse_admin}</p>
+                    </div>
+                  )}
+                </div>
+              ))}
+            </div>
+          )}
         </div>
       )}
 
