@@ -205,7 +205,7 @@ export default function ManageOrders() {
   }
 
   return (
-    <div className="p-4 md:p-6 max-w-2xl mx-auto">
+    <div className="p-4 md:p-6 max-w-5xl mx-auto">
 
       {/* En-tête */}
       <div className="flex items-center justify-between mb-5">
@@ -244,8 +244,8 @@ export default function ManageOrders() {
 
       {/* Liste */}
       {chargement ? (
-        <div className="space-y-4">
-          {[1,2,3].map(i => <div key={i} className="skeleton h-32 rounded-2xl" />)}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          {[1,2,3,4].map(i => <div key={i} className="skeleton h-32 rounded-2xl" />)}
         </div>
       ) : liste.length === 0 ? (
         <div className="text-center py-20">
@@ -253,7 +253,7 @@ export default function ManageOrders() {
           <p className="text-gray-400">Aucune commande</p>
         </div>
       ) : (
-        <div className="space-y-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
           {liste.map(commande => {
             const loading   = enCours === commande.id
             const aVerifier = commande.statut_paiement === 'en_attente'
