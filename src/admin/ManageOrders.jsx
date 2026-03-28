@@ -13,6 +13,7 @@ const FILTRE_STATUTS = [
   { id: 'en_preparation', label: '👨‍🍳 Prépa' },
   { id: 'en_livraison',   label: '🛵 Livraison' },
   { id: 'livre',          label: '✅ Livrée' },
+  { id: 'annule',         label: '🚫 Annulées' },
 ]
 
 const BADGE = {
@@ -20,6 +21,7 @@ const BADGE = {
   en_preparation: { label: 'En préparation', cls: 'bg-blue-900/60 text-blue-300' },
   en_livraison:   { label: 'En livraison',   cls: 'bg-orange-900/60 text-orange-300' },
   livre:          { label: 'Livré ✓',        cls: 'bg-green-900/60 text-green-300' },
+  annule:         { label: 'Annulée',        cls: 'bg-red-900/60 text-red-400' },
 }
 
 const LABELS_PAIEMENT = {
@@ -32,9 +34,10 @@ export default function ManageOrders() {
   const [chargement,       setChargement]       = useState(true)
   const [enCours,          setEnCours]          = useState(null)
   const [livreurs,         setLivreurs]         = useState([])
-  const [livreurChoisi,    setLivreurChoisi]    = useState({}) // { [commandeId]: livreurId }
+  const [livreurChoisi,    setLivreurChoisi]    = useState({})
   const [assignant,        setAssignant]        = useState(null)
   const [screenshotOuvert, setScreenshotOuvert] = useState(null)
+  const [confirmAnnul,     setConfirmAnnul]     = useState(null) // id de la commande en attente de confirmation
 
   useEffect(() => {
     charger()
@@ -95,6 +98,21 @@ export default function ManageOrders() {
       alert('Erreur assignation : ' + e.message)
     } finally {
       setAssignant(null)
+    }
+  }
+
+  async function annulerCommande(commandeId) {
+    setEnCours(commandeId)
+    try {
+      await updateStatutCommande(commandeId, 'annule')
+      setCommandes(prev => prev.map(c =>
+        c.id === commandeId ? { ...c, statut: 'annule' } : c
+      ))
+    } catch (e) {
+      alert('Erreur : ' + e.message)
+    } finally {
+      setEnCours(null)
+      setConfirmAnnul(null)
     }
   }
 
@@ -277,14 +295,43 @@ export default function ManageOrders() {
                     {commande.notes && <p className="text-gray-500 text-xs mt-1">📝 {commande.notes}</p>}
                   </div>
 
-                  {/* Impression ticket */}
-                  <div className="flex justify-end mb-2">
+                  {/* Impression ticket + Annulation */}
+                  <div className="flex items-center justify-between mb-2">
                     <button
                       onClick={() => imprimerTicket(commande)}
                       className="text-xs text-gray-500 hover:text-white flex items-center gap-1 transition-colors"
                     >
                       🖨 Imprimer le ticket
                     </button>
+
+                    {/* Bouton annuler — uniquement pour les commandes actives */}
+                    {!['livre', 'annule'].includes(commande.statut) && (
+                      confirmAnnul === commande.id ? (
+                        <div className="flex items-center gap-2">
+                          <span className="text-red-400 text-xs">Confirmer ?</span>
+                          <button
+                            onClick={() => annulerCommande(commande.id)}
+                            disabled={enCours === commande.id}
+                            className="text-xs bg-red-700 hover:bg-red-600 text-white px-2.5 py-1 rounded-lg transition-colors disabled:opacity-50"
+                          >
+                            {enCours === commande.id ? '⏳' : 'Oui'}
+                          </button>
+                          <button
+                            onClick={() => setConfirmAnnul(null)}
+                            className="text-xs text-gray-500 hover:text-white transition-colors"
+                          >
+                            Non
+                          </button>
+                        </div>
+                      ) : (
+                        <button
+                          onClick={() => setConfirmAnnul(commande.id)}
+                          className="text-xs text-red-500 hover:text-red-400 transition-colors flex items-center gap-1"
+                        >
+                          🚫 Annuler la commande
+                        </button>
+                      )
+                    )}
                   </div>
 
                   {/* Livreur assigné */}
