@@ -4,9 +4,11 @@
 // ============================================================
 
 import { BrowserRouter, Routes, Route } from 'react-router-dom'
+import { useState, useEffect } from 'react'
 import { CartProvider } from './context/CartContext'
 import { AuthProvider } from './context/AuthContext'
 import { ThemeProvider } from './context/ThemeContext'
+import { getParametre } from './lib/supabase'
 
 // Layout
 import Navbar from './components/layout/Navbar'
@@ -41,10 +43,11 @@ import ManageRapports from './admin/ManageRapports'
 import OrderConfirmation from './pages/OrderConfirmation'
 import LivreurLogin from './livreur/LivreurLogin'
 import LivreurDashboard from './livreur/LivreurDashboard'
+import MaintenancePage from './pages/MaintenancePage'
 
 // ---- Layout principal (pages client) ----
-// Ce composant enveloppe toutes les pages client avec la navbar et la bottom nav
-function ClientLayout({ children }) {
+function ClientLayout({ children, maintenance }) {
+  if (maintenance) return <MaintenancePage />
   return (
     <div className="flex flex-col min-h-screen">
       <Navbar />
@@ -69,6 +72,12 @@ function Page404() {
 }
 
 export default function App() {
+  const [maintenance, setMaintenance] = useState(false)
+
+  useEffect(() => {
+    getParametre('maintenance_mode').then(v => setMaintenance(v === 'true'))
+  }, [])
+
   return (
     // BrowserRouter gère la navigation entre les pages
     <BrowserRouter>
@@ -134,48 +143,48 @@ export default function App() {
             {/* Chaque route client est enveloppée dans ClientLayout */}
 
             <Route path="/" element={
-              <ClientLayout><Home /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><Home /></ClientLayout>
             } />
 
             <Route path="/menu" element={
-              <ClientLayout><Menu /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><Menu /></ClientLayout>
             } />
 
             <Route path="/panier" element={
-              <ClientLayout><CartPage /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><CartPage /></ClientLayout>
             } />
 
             <Route path="/commander" element={
-              <ClientLayout><Checkout /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><Checkout /></ClientLayout>
             } />
 
             <Route path="/commandes" element={
-              <ClientLayout><Profile /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><Profile /></ClientLayout>
             } />
 
             <Route path="/commandes/:id" element={
-              <ClientLayout><OrderTracking /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><OrderTracking /></ClientLayout>
             } />
 
             <Route path="/messages" element={
-              <ClientLayout><MessagesPage /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><MessagesPage /></ClientLayout>
             } />
 
             <Route path="/profil" element={
-              <ClientLayout><Profile /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><Profile /></ClientLayout>
             } />
 
             <Route path="/solde" element={
-              <ClientLayout><SoldePage /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><SoldePage /></ClientLayout>
             } />
 
             <Route path="/commande-confirmee/:id" element={
-              <ClientLayout><OrderConfirmation /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><OrderConfirmation /></ClientLayout>
             } />
 
             {/* Route 404 — doit être en dernier */}
             <Route path="*" element={
-              <ClientLayout><Page404 /></ClientLayout>
+              <ClientLayout maintenance={maintenance}><Page404 /></ClientLayout>
             } />
 
           </Routes>

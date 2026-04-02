@@ -213,6 +213,7 @@ export default function Dashboard() {
   const [ouvert, setOuvert]                 = useState(true)
   const [decalage, setDecalage]             = useState(0)
   const [connecte, setConnecte]             = useState(false)
+  const [maintenance, setMaintenance]       = useState(false)
 
   // Débloque l'AudioContext au premier clic (politique navigateur)
   useEffect(() => {
@@ -224,6 +225,7 @@ export default function Dashboard() {
   useEffect(() => {
     chargerCommandes()
     getParametre('restaurant_ouvert').then(v => setOuvert(v !== 'false'))
+    getParametre('maintenance_mode').then(v => setMaintenance(v === 'true'))
 
     const subscription = supabase
       .channel('nouvelles-commandes')
@@ -244,6 +246,12 @@ export default function Dashboard() {
     const nouval = !ouvert
     setOuvert(nouval)
     await updateParametre('restaurant_ouvert', String(nouval))
+  }
+
+  async function toggleMaintenance() {
+    const nouval = !maintenance
+    setMaintenance(nouval)
+    await updateParametre('maintenance_mode', String(nouval))
   }
 
   async function chargerCommandes() {
@@ -331,6 +339,19 @@ export default function Dashboard() {
         >
           <span className={`w-3 h-3 rounded-full ${ouvert ? 'bg-green-400 animate-pulse' : 'bg-red-500'}`} />
           <span className="font-bold text-sm">{ouvert ? 'Restaurant Ouvert' : 'Restaurant Fermé'}</span>
+        </button>
+
+        {/* Toggle maintenance */}
+        <button
+          onClick={toggleMaintenance}
+          className={`flex items-center gap-3 px-4 py-2.5 rounded-xl border-2 transition-all ${
+            maintenance
+              ? 'border-orange-500 bg-orange-900/20 text-orange-400'
+              : 'border-gray-700 bg-gray-800/20 text-gray-500 hover:text-gray-300'
+          }`}
+        >
+          <span className="text-lg">🔧</span>
+          <span className="font-bold text-sm">{maintenance ? 'Maintenance ON' : 'Maintenance OFF'}</span>
         </button>
 
         {/* Sélecteur de période */}
